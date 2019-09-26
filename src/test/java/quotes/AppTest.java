@@ -3,12 +3,46 @@
  */
 package quotes;
 
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class AppTest {
-    @Test public void testAppHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+
+    Quote[] quotes;
+    @Before
+    public void setUp() throws Exception {
+        quotes = App.getQuotes("src/main/resources/recentquotes.json");
+    }
+
+    // test if we can get a quote from the json file and if we can get a specific quote from a specified author
+    @Test
+    public void testQuoteSearchForAuthor() throws NoSuchFieldException {
+        Quote quote = App.getQuoteByAuthor(quotes, "Marilyn Monroe");
+        assertEquals("“I am good, but not an angel. I do sin, but I am not the devil." +
+                " I am just a small girl in a big world trying to find someone to love.” - By Marilyn Monroe", quote.toString());
+    }
+
+    // test if the specified author is not actually in any of the quotes
+    // return a no such field exception in that case
+    @Test(expected = NoSuchFieldException.class)
+    public void testQuoteSearchForNonExistingAuthor() throws NoSuchFieldException {
+        Quote quote = App.getQuoteByAuthor(quotes, "Quang");
+        quote.toString();
+    }
+
+    // test if we can get a quote from the json file and if we can get a specific quote that contains a specific word
+    @Test
+    public void testQuoteSearchForWord() throws NoSuchFieldException {
+        Quote quote = App.getQuoteBySearchWord(quotes, "lies");
+        assertEquals("“Ask no questions, and you'll be told no lies.” - By Charles Dickens", quote.toString());
+    }
+
+    // test if the specified word is not actually in any of the quotes
+    // return a no such field exception in that case
+    @Test(expected = NoSuchFieldException.class)
+    public void testQuoteSearchForNonExistingWord() throws NoSuchFieldException {
+        Quote quote = App.getQuoteBySearchWord(quotes, "cockadoodledoooo");
+        quote.toString();
     }
 }

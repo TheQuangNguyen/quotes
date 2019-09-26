@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class App {
+
+    // Get an array of Quote objects from the JSON file that contains each quotes
     public static Quote[] getQuotes(String filePathToJSON) throws IOException {
         Gson gson = new Gson();
         String quoteFile = new String(Files.readAllBytes(Paths.get(filePathToJSON)));
@@ -17,36 +19,57 @@ public class App {
         return quotes;
     }
 
+    // get a random quote from the array of quotes
     public static Quote getRandomQuote(Quote[] quotes) {
         int randomIndex = (int)(Math.random() * quotes.length);
         return quotes[randomIndex];
     }
 
-    public static Quote getQuoteByAuthor(Quote[] quotes, String author) {
+    // search the array of quotes for a quote that has the author in it and return the quote
+    // Return a no such field exception if the author does not exist in the array of quotes
+    public static Quote getQuoteByAuthor(Quote[] quotes, String author) throws NoSuchFieldException {
         for (int i = 0; i < quotes.length; i++) {
-            if (quotes[i].author.equals(author)) {
+            if (quotes[i].author.contains(author)) {
                 return quotes[i];
             }
         }
-
-        return new Quote();
+        throw new NoSuchFieldException("author was not found for all available quotes");
     }
 
-    public static Quote getQuoteBySearchWord(Quote[] quotes, String word) throws NoSuchMethodException {
+    // search the array of quotes for a quote that has the word in the text and return the quote
+    // return a no such field exception if the word does not exist in any of the quote
+    public static Quote getQuoteBySearchWord(Quote[] quotes, String word) throws NoSuchFieldException {
         for (int i = 0; i < quotes.length; i++) {
             if (quotes[i].text.contains(word)) {
                 return quotes[i];
             }
         }
-
-        throw new NoSuchMethodException("word was not found for all available quotes");
+        throw new NoSuchFieldException("word was not found for all available quotes");
     }
 
-    public static void main(String[] args) throws IOException {
-        String command = args[0];
-        String searchWord = args[1];
+    public static void main(String[] args) throws IOException, NoSuchFieldException {
+        // create variable to store the command to specify either user wants to search by author or word
+        String command;
+        String searchWord;
         Quote[] listOfQuotes = getQuotes("src/main/resources/recentquotes.json");
-        Quote randomQuote = getRandomQuote(listOfQuotes);
-        System.out.println(randomQuote.toString());
+
+        // if there are arguments input to the program, then search by either author or word
+        if (args.length > 0) {
+            command = args[0];
+            searchWord = args[1];
+            if (command.equals("author")) {
+                Quote quote = getQuoteByAuthor(listOfQuotes, searchWord);
+                System.out.println(quote.toString());
+            } else if (command.equals("contains")) {
+                Quote quote = getQuoteBySearchWord(listOfQuotes, searchWord);
+                System.out.println(quote.toString());
+            } else {
+                throw new IllegalArgumentException("Specify either the command author or contains to search" +
+                                                "for author or word in quote");
+            }
+        } else {        // else if there are no arguments, then return a random quote
+            Quote randomQuote = getRandomQuote(listOfQuotes);
+            System.out.println(randomQuote.toString());
+        }
     }
 }
