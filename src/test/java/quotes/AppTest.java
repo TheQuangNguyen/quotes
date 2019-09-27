@@ -5,11 +5,17 @@ package quotes;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static org.junit.Assert.*;
 
 public class AppTest {
 
     Quote[] quotes;
+    String URL = "http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en";
     @Before
     public void setUp() throws Exception {
         quotes = App.getQuotes("src/main/resources/recentquotes.json");
@@ -19,7 +25,7 @@ public class AppTest {
     @Test
     public void testQuoteSearchForAuthor() throws NoSuchFieldException {
         Quote quote = App.getQuoteByAuthor(quotes, "Marilyn Monroe");
-        assertEquals("“I am good, but not an angel. I do sin, but I am not the devil." +
+        assertEquals(" “I am good, but not an angel. I do sin, but I am not the devil." +
                 " I am just a small girl in a big world trying to find someone to love.” - By Marilyn Monroe", quote.toString());
     }
 
@@ -35,7 +41,7 @@ public class AppTest {
     @Test
     public void testQuoteSearchForWord() throws NoSuchFieldException {
         Quote quote = App.getQuoteBySearchWord(quotes, "lies");
-        assertEquals("“Ask no questions, and you'll be told no lies.” - By Charles Dickens", quote.toString());
+        assertEquals(" “Ask no questions, and you'll be told no lies.” - By Charles Dickens", quote.toString());
     }
 
     // test if the specified word is not actually in any of the quotes
@@ -44,5 +50,14 @@ public class AppTest {
     public void testQuoteSearchForNonExistingWord() throws NoSuchFieldException {
         Quote quote = App.getQuoteBySearchWord(quotes, "cockadoodledoooo");
         quote.toString();
+    }
+
+    // Test if we can get back a quote from API and its got added to our cache
+    @Test
+    public void testGetQuoteFromAPI() throws IOException {
+        String quote = App.getQuotesAPIJSONString(URL);
+        String quoteFile = new String(Files.readAllBytes(Paths.get("src/main/resources/recentquotes.json")));
+        assertNotNull(quote);
+        assertTrue(quoteFile.contains(quote));
     }
 }

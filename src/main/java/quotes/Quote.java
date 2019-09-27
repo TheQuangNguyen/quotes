@@ -6,6 +6,6 @@ public class Quote {
 
     @Override
     public String toString() {
-        return this.text.substring(1) + "- By " + this.author;
+        return this.text + "- By " + this.author;
     }
 }
